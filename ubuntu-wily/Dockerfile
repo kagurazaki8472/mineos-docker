@@ -1,14 +1,11 @@
 FROM ubuntu:wily
 MAINTAINER William Dizon <wdchromium@gmail.com>
 
-#arbitrarily assigned ports for 5 servers. change if you need to.
-EXPOSE 8443 25565
-
-RUN useradd -ms /bin/bash mc
-RUN echo 'mc:minecraft' | chpasswd
+#update apt-get repos
+RUN apt-get update && apt-get upgrade -y
 
 #update and accept all prompts
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
   build-essential \
   supervisor \
   rdiff-backup \
@@ -20,26 +17,28 @@ RUN apt-get update && apt-get install -y \
   rlwrap
 
 #install node from nodesource
-RUN curl https://deb.nodesource.com/node_4.x/pool/main/n/nodejs/nodejs_4.3.1-1nodesource1~wily1_amd64.deb > node.deb \
+RUN curl https://deb.nodesource.com/node_4.x/pool/main/n/nodejs/nodejs_4.3.1-1nodesource1~jessie1_amd64.deb > node.deb \
  && dpkg -i node.deb \
  && rm node.deb
 
-#create mineos directories
-RUN mkdir -p /var/games/minecraft \
-  && mkdir -p /usr/games/minecraft
-
-#download mineos and setup supervisor init
-RUN cd /usr/games/minecraft \
-  && git clone --depth=1 https://github.com/hexparrot/mineos-node.git . \
-  && sh generate-sslcert.sh \
-  && npm install \
-  && chmod +x webui.js mineos_console.js service.js \
-  && cp init/supervisor_conf /etc/supervisor/conf.d/mineos.conf
-
-RUN update-ca-certificates -f
-
+#clean up apt for image minimalization
 RUN apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-VOLUME /var/games/minecraft
+#download mineos and npm deps
+RUN mkdir /usr/games/minecraft \
+  && cd /usr/games/minecraft \
+  && git clone --depth=1 https://github.com/hexparrot/mineos-node.git . \
+  && npm install \
+  && chmod +x webui.js mineos_console.js service.js
+
+#configure and run supervisor
+RUN cp /usr/games/minecraft/init/supervisor_conf /etc/supervisor/conf.d/mineos.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+
+#entrypoint allowing for setting of mc password
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+EXPOSE 8443 25565
+VOLUME /var/games/minecraft
