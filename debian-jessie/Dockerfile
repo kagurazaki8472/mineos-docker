@@ -37,9 +37,6 @@ RUN mkdir /usr/games/minecraft \
 RUN cp /usr/games/minecraft/init/supervisor_conf /etc/supervisor/conf.d/mineos.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 
-#create mc user and use no login shell, no home dir
-RUN useradd -Ms /bin/false mc
-
 #entrypoint allowing for setting of mc password
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
