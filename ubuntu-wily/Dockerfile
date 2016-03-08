@@ -1,12 +1,8 @@
 FROM ubuntu:wily
 MAINTAINER William Dizon <wdchromium@gmail.com>
 
-#update apt-get repos
-RUN apt-get update && apt-get upgrade -y
-
 #update and accept all prompts
-RUN apt-get install -y \
-  build-essential \
+RUN apt-get update && apt-get install -y \
   supervisor \
   rdiff-backup \
   screen \
@@ -14,23 +10,28 @@ RUN apt-get install -y \
   rsync \
   git \
   curl \
-  rlwrap
+  rlwrap \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #install node from nodesource
 RUN curl https://deb.nodesource.com/node_4.x/pool/main/n/nodejs/nodejs_4.3.1-1nodesource1~jessie1_amd64.deb > node.deb \
  && dpkg -i node.deb \
  && rm node.deb
 
-#clean up apt for image minimalization
-RUN apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-#download mineos and npm deps
+#download mineos from github
 RUN mkdir /usr/games/minecraft \
   && cd /usr/games/minecraft \
   && git clone --depth=1 https://github.com/hexparrot/mineos-node.git . \
-  && npm install \
   && chmod +x webui.js mineos_console.js service.js
+
+#build npm deps and clean up apt for image minimalization
+RUN cd /usr/games/minecraft \
+  && apt-get update \
+  && apt-get install -y build-essential \
+  && npm install \
+  && apt-get remove --purge -y build-essential \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #configure and run supervisor
 RUN cp /usr/games/minecraft/init/supervisor_conf /etc/supervisor/conf.d/mineos.conf
@@ -40,5 +41,5 @@ CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-EXPOSE 8443 25565
+EXPOSE 8443 25565-25570
 VOLUME /var/games/minecraft
