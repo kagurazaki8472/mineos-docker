@@ -1,8 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 
-if [ "$ACCEPT_ORACLE_LICENSE" ]; then
-  echo >&2 'You need to ACCEPT_ORACLE_LICENSE=true in order to start this container.'
+if [ -z "$ACCEPT_ORACLE_LICENSE" ]; then
+  echo >&2 'You need to include ACCEPT_ORACLE_LICENSE=true in order to start this container.'
   echo >&2 'Visit http://www.oracle.com/technetwork/java/javase/terms/license/index.html'
   exit 1
 fi
