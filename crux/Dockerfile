@@ -47,16 +47,6 @@ RUN mkdir -p /usr/games/minecraft \
   && chmod +x webui.js mineos_console.js service.js \
   && npm install
 
-#install java
-RUN mkdir /root/java \
-  && cd /root/java \
-  && wget -c --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u74-b02/server-jre-8u74-linux-x64.tar.gz \
-  && tar -xf server-jre-8u74-linux-x64.tar.gz \
-  && mv /root/java/jdk1.8.0_74 /usr/java \
-  && cd /root \
-  && rm -rf /root/java \
-  && ln -s /usr/java/jre/bin/java /usr/bin/java
-
 #configure and run supervisor
 RUN cp /usr/games/minecraft/init/supervisor_conf /etc/supervisor.d/mineos.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
