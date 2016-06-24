@@ -30,6 +30,7 @@ RUN cd /usr/games/minecraft \
   && apt-get install -y build-essential \
   && npm install \
   && apt-get remove --purge -y build-essential \
+  && apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
