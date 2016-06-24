@@ -17,12 +17,18 @@ else
   USER_NAME=mc
 fi
 
-useradd -Ms /bin/false $USER_NAME
-echo "$USER_NAME:$USER_PASSWORD" | chpasswd
-echo >&2 "Created user: $USER_NAME"
-
-echo >&2 "Generating Self-Signed SSL..."
-sh /usr/games/minecraft/generate-sslcert.sh
-update-ca-certificates -f
+if id -u $USER_NAME >/dev/null 2>&1; then
+  echo "$USER_NAME already exists."
+else
+  useradd -Ms /bin/false $USER_NAME
+  echo "$USER_NAME:$USER_PASSWORD" | chpasswd
+  echo >&2 "Created user: $USER_NAME"
+fi
+  
+if [ ! -f /etc/ssl/certs/mineos.crt ]; then
+  echo >&2 "Generating Self-Signed SSL..."
+  sh /usr/games/minecraft/generate-sslcert.sh
+  update-ca-certificates -f
+fi
 
 exec "$@"
