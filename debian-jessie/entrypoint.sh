@@ -27,11 +27,17 @@ else
   USER_UID=1000
 fi
 
-useradd -Ms /bin/false -u $USER_UID $USER_NAME
-echo "$USER_NAME:$USER_PASSWORD" | chpasswd
-echo >&2 "Created user: $USER_NAME (uid: $USER_UID)"
+if id -u $USER_NAME >/dev/null 2>&1; then
+  echo "$USER_NAME already exists."
+else
+  useradd -Ms /bin/false -u $USER_UID $USER_NAME
+  echo "$USER_NAME:$USER_PASSWORD" | chpasswd
+  echo >&2 "Created user: $USER_NAME (uid: $USER_UID)"
+fi
 
-echo >&2 "Generating Self-Signed SSL..."
-sh /usr/games/minecraft/generate-sslcert.sh
+if [ ! -f /etc/ssl/certs/mineos.crt ]; then
+  echo >&2 "Generating Self-Signed SSL..."
+  sh /usr/games/minecraft/generate-sslcert.sh
+fi
 
 exec "$@"
