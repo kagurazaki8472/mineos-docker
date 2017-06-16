@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
   supervisor \
   rdiff-backup \
   screen \
-  openjdk-8-jre-headless \
+  openjdk-8-jre-headless ca-certificates-java \
   rsync \
   git \
   curl \
