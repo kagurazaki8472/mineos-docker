@@ -3,7 +3,8 @@ MAINTAINER William Dizon <wdchromium@gmail.com>
 
 #add testing repository for OpenJDK8
 RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list
-
+RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+RUN tee /etc/apt/sources.list.d/stretch-backports.list
 #update and accept all prompts
 RUN apt-get update && apt-get install -y \
   supervisor \
@@ -13,7 +14,7 @@ RUN apt-get update && apt-get install -y \
   git \
   curl \
   rlwrap \
-  && apt-get install -y -t jessie-backports openjdk-8-jre-headless ca-certificates-java \
+  && apt-get install -y -t stretch-backports openjdk-11-jre-headless ca-certificates-java \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #install node from nodesource
