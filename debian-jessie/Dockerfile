@@ -1,7 +1,7 @@
 FROM debian:jessie
 MAINTAINER William Dizon <wdchromium@gmail.com>
 
-#add testing repository for OpenJDK8
+#add testing repository for OpenJDK11
 RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
 RUN tee /etc/apt/sources.list.d/stretch-backports.list
